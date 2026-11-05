@@ -5,6 +5,8 @@ qualifier (p pada p.nama) ke tabel, lalu mengisi ColumnRef.resolved.
 Aturan lengkap: SPESIFIKASI.md bagian 4.
 """
 from dataclasses import dataclass
+from itertools import chain
+from os import name
 
 from . import ast_nodes as ast
 
@@ -85,15 +87,12 @@ class Resolver:
             self._declare(source.alias, None, source.line)
 
     def _lookup(self, name: str) -> ScopeEntry | None:
-        """Cari nama di rantai scope."""
-        chain = []
+        """Cari nama dari scope terdalam naik ke luar; kecocokan pertama menang."""
         scope = self.scope
         while scope is not None:
-            chain.append(scope)
-            scope = scope.parent
-        for scope in reversed(chain):
             if name in scope.entries:
                 return scope.entries[name]
+            scope = scope.parent
         return None
 
     # ---- statement ------------------------------------------------------
