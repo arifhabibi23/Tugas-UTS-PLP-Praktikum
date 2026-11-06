@@ -5,8 +5,6 @@ qualifier (p pada p.nama) ke tabel, lalu mengisi ColumnRef.resolved.
 Aturan lengkap: SPESIFIKASI.md bagian 4.
 """
 from dataclasses import dataclass
-from itertools import chain
-from os import name
 
 from . import ast_nodes as ast
 
