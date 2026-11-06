@@ -42,7 +42,8 @@ def test_regresi_p1_presedensi_and_lebih_kuat_dari_or():
 
 
 def test_regresi_p1_not_lebih_kuat_dari_and():
-    # Sebelum perbaikan: NOT membungkus seluruh ekspresi di kanannya.
+    # Pengaman: NOT sudah benar sebelum P1 (hanya mengikat satu perbandingan).
+    # Tes ini menjaga agar rantai _or -> _and -> _not tidak merusaknya.
     s = _first("SELECT id FROM t WHERE NOT a = 1 AND b = 2")
     assert s.where.op == "AND"
     assert isinstance(s.where.left, ast.UnaryOp)
