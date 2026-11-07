@@ -55,3 +55,19 @@ def test_karakter_tidak_dikenal():
     with pytest.raises(LexError) as info:
         tokenize("SELECT\n$")
     assert info.value.line == 2
+
+
+
+def test_l1_keyword_huruf_kecil_dikenali():
+    assert types("select id from t") == [T.KEYWORD, T.IDENT, T.KEYWORD, T.IDENT, T.EOF]
+
+
+def test_l1_keyword_dinormalisasi_ke_huruf_besar():
+    assert values("select id from t") == ["SELECT", "id", "FROM", "t"]
+    assert values("SeLeCt id FrOm t") == ["SELECT", "id", "FROM", "t"]
+
+
+def test_l1_identifier_tetap_huruf_asli():
+    # perbaikan tidak boleh ikut mengubah identifier biasa
+    assert values("SELECT Users FROM Orders") == ["SELECT", "Users", "FROM", "Orders"]
+    assert types("selected") == [T.IDENT, T.EOF]
