@@ -40,3 +40,25 @@ def test_subquery_in_alias_dalam():
     inner = [c for c in columns(script) if c.qualifier == "o"][0]
     assert inner.resolved == "pesanan"
     assert diags == []
+
+
+
+def test_r1_alias_sama_dipakai_scope_terdalam():
+    script, diagnostics = resolve(
+        "SELECT p.id FROM pelanggan p "
+        "WHERE p.id IN (SELECT p.pelanggan_id FROM pesanan p)"
+    )
+    resolved = {c.name: c.resolved for c in columns(script)}
+    assert resolved["id"] == "pelanggan"
+    assert resolved["pelanggan_id"] == "pesanan"
+
+
+def test_r1_alias_luar_tetap_terlihat_dari_subquery():
+    # penjaga: harus lulus sebelum dan sesudah perbaikan
+    script, diagnostics = resolve(
+        "SELECT p.id FROM pelanggan p "
+        "WHERE p.id IN (SELECT o.pelanggan_id FROM pesanan o)"
+    )
+    resolved = {c.name: c.resolved for c in columns(script)}
+    assert resolved["id"] == "pelanggan"
+    assert resolved["pelanggan_id"] == "pesanan"
