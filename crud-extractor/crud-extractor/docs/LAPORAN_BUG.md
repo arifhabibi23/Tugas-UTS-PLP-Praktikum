@@ -163,8 +163,8 @@ AI (Claude) dipakai selama pengerjaan untuk: menyusun ground truth `audit.sql` d
 SPESIFIKASI.md; memverifikasi bahwa tes regresi gagal pada kode sebelum perbaikan (kode lama
 diekstrak dengan `git archive` ke folder terpisah lalu dijalankan dengan pytest); menemukan
 bahwa tes `NOT` untuk P1 ternyata lolos di kode lama sehingga kami mengoreksi komentar tes;
-membantu menyusun draf laporan ini dan penjelasan "Akar masalah" dalam
-bahasa lisan, yang kemudian kami baca, cocokkan dengan kode dan buku, lalu tulis ulang;
-membantu patch T1 karena patch pertamanya salah dan membuat 20 tes gagal, lalu kami
-perbaiki. Verifikasi: semua klaim "gagal sebelum, lulus sesudah" berasal dari output pytest
-yang kami jalankan sendiri pada commit lama dan baru.
+serta membantu menyusun draf laporan ini, termasuk penjelasan "Akar masalah" dalam bahasa
+lisan, yang kemudian kami baca, cocokkan dengan kode dan buku, dan sesuaikan.
+Patch pertama T1 kami tulis sendiri dan salah (membuat 20 tes gagal), lalu kami perbaiki
+setelah menjalankan pytest penuh. Verifikasi: semua klaim "gagal sebelum, lulus sesudah"
+berasal dari output pytest yang kami jalankan sendiri pada commit lama dan baru.
