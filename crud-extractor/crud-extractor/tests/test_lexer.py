@@ -97,3 +97,20 @@ def test_l3_string_biasa_tidak_berubah():
     assert values("'abc'") == ["abc"]
     assert values("''") == [""]
     assert types("'abc' 'def'") == [T.STRING, T.STRING, T.EOF]
+
+
+
+def test_t3_komentar_blok_dilewati():
+    assert values("SELECT /* catatan */ id FROM t") == ["SELECT", "id", "FROM", "t"]
+    assert values("/* hanya komentar */") == []
+
+
+def test_t3_komentar_blok_banyak_baris_menjaga_nomor_baris():
+    toks = [t for t in tokenize("/* a\nb\nc */\nSELECT") if t.type != T.EOF]
+    assert [t.value for t in toks] == ["SELECT"]
+    assert toks[0].line == 4
+
+
+def test_t3_komentar_blok_tidak_ditutup():
+    with pytest.raises(LexError, match="tidak ditutup"):
+        tokenize("SELECT /* tidak ditutup")
