@@ -1,7 +1,6 @@
 # Laporan Akhir
 
 ## 1. Hasil evaluasi
-## 1. Hasil evaluasi
 
 ```text
 Dievaluasi: audit.sql, campuran_error.sql, laporan_penjualan.sql, pemeliharaan.sql (27 triple)
