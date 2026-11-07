@@ -168,3 +168,58 @@ lisan, yang kemudian kami baca, cocokkan dengan kode dan buku, dan sesuaikan.
 Patch pertama T1 kami tulis sendiri dan salah (membuat 20 tes gagal), lalu kami perbaiki
 setelah menjalankan pytest penuh. Verifikasi: semua klaim "gagal sebelum, lulus sesudah"
 berasal dari output pytest yang kami jalankan sendiri pada commit lama dan baru.
+
+---
+
+## Bug 6: Kata Kunci SQL Peka Huruf Besar/Kecil (L1)
+
+**Ditemukan oleh:** Muhammad Ziddan · **Diperbaiki oleh:** Muhammad Ziddan
+
+**Gejala.** `select id from t` menghasilkan token `select` sebagai `TokenType.IDENT`, bukan `TokenType.KEYWORD`.
+
+**Reproduksi minimal.**
+
+select id from t
+
+**Akar masalah.** Scanner pada lexer melakukan pencocokan kata kunci pada kamus `KEYWORDS` tanpa menormalkan kapitalisasi huruf (*case-sensitive lookup*). SPESIFIKASI.md bagian 2.2 menyatakan kata kunci SQL bersifat *case-insensitive*. Berdasarkan konsep *Scanning* (Crafting Interpreters bab 4), *reserved words* harus dinormalisasi hurufnya (`text.upper()`) saat penentuan tipe token tanpa mengubah nilai teks asli token.
+
+**Perbaikan.** `crud/lexer.py`: pada pencocokan identifier/keyword, lookup kamus diubah menjadi `KEYWORDS.get(text.upper(), TokenType.IDENT)`.
+
+**Test regresi.** `test_keyword_huruf_kecil`.
+
+---
+
+## Bug 7: Komentar Blok Multiline `/* ... */` Melempar LexError (T3 / L2)
+
+**Ditemukan oleh:** Muhammad Ziddan · **Diperbaiki oleh:** Muhammad Ziddan
+
+**Gejala.** `/* komentar */ SELECT` melempar `LexError: komentar blok belum didukung`.
+
+**Reproduksi minimal.**
+
+/* komentar 
+dua baris */ SELECT id FROM t
+
+**Akar masalah.** *State machine* scanner pada lexer belum mengimplementasikan transisi saat membaca karakter `/` yang diikuti `*` (SPESIFIKASI.md bagian 2.3). Berdasarkan teori *Scanning* dan *State Transition* (Crafting Interpreters bab 4), ketika pola `/*` terdeteksi, lexer harus beralih ke loop pemindaian karakter hingga menemukan penutup `*/` sambil terus memperbarui penghitung `line` dan `col`.
+
+**Perbaikan.** `crud/lexer.py`: menambahkan cabang `if ch == "/" and self._peek() == "*"` di `_scan_token()` yang mengonsumsi karakter hingga pasangan `*/` ditemukan.
+
+**Test regresi.** `test_komentar_blok`.
+
+---
+
+## Bug 8: Kolom Tanpa Kualifikasi Tidak Di-resolve pada Single-Table Scope (T2 / R1)
+
+**Ditemukan oleh:** Muhammad Ziddan · **Diperbaiki oleh:** Muhammad Ziddan
+
+**Gejala.** Query `SELECT nama FROM pelanggan` menghasilkan atribut `ColumnRef.resolved = None` (seharusnya `"crm.pelanggan"`).
+
+**Reproduksi minimal.**
+
+SELECT nama FROM pelanggan
+
+**Akar masalah.** Tahap *resolution pass* pada *symbol table* tidak mengikat kolom tanpa kualifikasi (*unqualified column*) secara otomatis ketika berada dalam *scope* tunggal (SPESIFIKASI.md bagian 4.3). Menurut konsep *Lexical Scoping and Binding* (Crafting Interpreters bab 11), jika suatu *environment* hanya mendaftarkan tepat 1 tabel, semua referensi variabel/kolom tanpa kualifikasi di *scope* tersebut harus secara implisit terikat (*bound*) ke tabel tunggal tersebut.
+
+**Perbaikan.** `crud/resolver.py`: memeriksa jumlah tabel unik pada `current_scope`. Jika bernilai tepat 1, tetapkan nama tabel tersebut ke `ColumnRef.resolved`.
+
+**Test regresi.** `test_kolom_tanpa_qualifier_satu_tabel`.
