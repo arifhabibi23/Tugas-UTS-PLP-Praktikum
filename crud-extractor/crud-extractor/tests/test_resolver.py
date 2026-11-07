@@ -62,3 +62,17 @@ def test_r1_alias_luar_tetap_terlihat_dari_subquery():
     resolved = {c.name: c.resolved for c in columns(script)}
     assert resolved["id"] == "pelanggan"
     assert resolved["pelanggan_id"] == "pesanan"
+
+def test_r2_alias_delete_tidak_bocor_ke_statement_berikutnya():
+    _, diagnostics = resolve(
+        "DELETE FROM pelanggan WHERE pelanggan.id = 1; "
+        "SELECT pelanggan.nama FROM pesanan o"
+    )
+    assert [d.level for d in diagnostics] == ["error"]
+    assert "'pelanggan'" in diagnostics[0].message
+
+
+def test_r2_delete_sendiri_tetap_teresolusi():
+    script, diagnostics = resolve("DELETE FROM pelanggan WHERE pelanggan.id = 1")
+    assert {c.resolved for c in columns(script)} == {"pelanggan"}
+    assert diagnostics == []
