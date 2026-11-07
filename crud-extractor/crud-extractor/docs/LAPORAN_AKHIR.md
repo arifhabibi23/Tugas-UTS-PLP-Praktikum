@@ -1,4 +1,4 @@
-# Laporan Akhir
+﻿# Laporan Akhir
 
 ## 1. Hasil evaluasi
 
@@ -62,7 +62,7 @@ atau log query.)
 ## 4. Pembagian kerja
 
 - **Arif Habibi Simamora:** Parser dan Analyzer. Memperbaiki seluruh bug Lexer dan Resolver (L1, L2, L3, T3, R1, R2, T2; semua commit pada `lexer.py` dan `resolver.py` atas nama Arif) beserta tes regresinya. Membersihkan impor tak terpakai di `resolver.py` (`7e48072`).
-- **Muhammad Ziddan:** ground truth `pemeliharaan.sql` (7 triple), evaluasi parser vs regex (27 triple), Keputusan 4 (hierarki scope dan shadowing), entri laporan bug L1, L2, R1, serta entri log penggunaan AI.
+- **Muhammad Ziddan:** ground truth `pemeliharaan.sql` (7 triple), evaluasi parser vs regex (27 triple), Keputusan 4 (hierarki scope dan shadowing), entri laporan bug L1, T3, T2, serta entri log penggunaan AI.
 
 AI (Claude) dipakai untuk menyusun draf laporan ini; semua angka dicocokkan dengan keluaran
 `evaluate.py` dan isi file SQL. Rinciannya ada di `LOG_AI.md`.

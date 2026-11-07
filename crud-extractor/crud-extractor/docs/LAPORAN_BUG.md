@@ -183,9 +183,9 @@ berasal dari output pytest yang kami jalankan sendiri pada commit lama dan baru.
 select id from t
 ```
 
-**Akar masalah.** Scanner pada lexer mencocokkan kata kunci pada kamus `KEYWORDS` tanpa menormalkan kapitalisasi huruf (*case-sensitive lookup*). SPESIFIKASI.md bagian 2.2 menyatakan kata kunci SQL bersifat *case-insensitive*. Berdasarkan konsep *Scanning* (Crafting Interpreters bab 4), *reserved words* harus dinormalisasi saat penentuan tipe token, tanpa mengubah teks asli token.
+**Akar masalah.** Scanner pada lexer mencocokkan kata kunci pada kamus `KEYWORDS` tanpa menormalkan kapitalisasi huruf (*case-sensitive lookup*). SPESIFIKASI.md bagian 2.2 menyatakan kata kunci SQL bersifat *case-insensitive*. Berdasarkan konsep *Scanning* (Crafting Interpreters bab 4), *reserved words* harus dinormalisasi saat penentuan tipe token. Identifier biasa tetap memakai teks aslinya.
 
-**Perbaikan.** `crud/lexer.py` (`9b54346`): lookup kamus memakai `KEYWORDS.get(text.upper(), TokenType.IDENT)`.
+**Perbaikan.** `crud/lexer.py` (`9b54346`): teks diubah ke huruf besar (`upper = text.upper()`). Jika `upper` ada di `KEYWORDS`, token dibuat sebagai `KEYWORD` dengan nilai `upper`; jika tidak, token dibuat sebagai `IDENT` dengan teks asli.
 
 **Test regresi.** `test_l1_keyword_huruf_kecil_dikenali` dan `test_l1_keyword_dinormalisasi_ke_huruf_besar` (`9920417`): gagal di `9b54346~1` (2 failed, 1 passed), lulus di HEAD. `test_l1_identifier_tetap_huruf_asli` adalah pengaman.
 
@@ -206,7 +206,7 @@ dua baris */ SELECT id FROM t
 
 **Akar masalah.** *State machine* scanner belum punya transisi untuk karakter `/` yang diikuti `*` (SPESIFIKASI.md bagian 2.3). Ketika pola `/*` terdeteksi, lexer harus memindai karakter sampai menemukan penutup `*/` sambil terus memperbarui penghitung `line` dan `col` (Crafting Interpreters bab 4).
 
-**Perbaikan.** `crud/lexer.py` (`4f5ea3c`): cabang baru di `_scan_token()` yang mengonsumsi karakter sampai pasangan `*/` ditemukan.
+**Perbaikan.** `crud/lexer.py` (`4f5ea3c`), `_scan_token()`: pada cabang `/` yang diikuti `*`, `raise LexError("komentar blok belum didukung")` diganti dengan loop yang mengonsumsi karakter sampai pasangan `*/` ditemukan. Jika file habis sebelum penutup, dilempar `LexError("komentar blok tidak ditutup")`.
 
 **Test regresi.** `test_t3_komentar_blok_dilewati`, `test_t3_komentar_blok_banyak_baris_menjaga_nomor_baris`, dan `test_t3_komentar_blok_tidak_ditutup` (`aef54a3`): ketiganya gagal di `4f5ea3c~1` (3 failed), lulus di HEAD.
 
