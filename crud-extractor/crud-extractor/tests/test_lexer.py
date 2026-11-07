@@ -71,3 +71,17 @@ def test_l1_identifier_tetap_huruf_asli():
     # perbaikan tidak boleh ikut mengubah identifier biasa
     assert values("SELECT Users FROM Orders") == ["SELECT", "Users", "FROM", "Orders"]
     assert types("selected") == [T.IDENT, T.EOF]
+
+
+
+def test_l2_operator_tidak_sama_satu_token():
+    assert values("a <> b") == ["a", "<>", "b"]
+    assert values("a<>b") == ["a", "<>", "b"]
+    assert types("a <> b") == [T.IDENT, T.OP, T.IDENT, T.EOF]
+
+
+def test_l2_operator_lain_tidak_berubah():
+    # penjaga: harus lulus sebelum dan sesudah perbaikan
+    assert values("a < b") == ["a", "<", "b"]
+    assert values("a <= b") == ["a", "<=", "b"]
+    assert values("a > b") == ["a", ">", "b"]
