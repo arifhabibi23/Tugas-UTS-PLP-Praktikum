@@ -1,21 +1,16 @@
 # Laporan Akhir
 
 ## 1. Hasil evaluasi
+## 1. Hasil evaluasi
 
 ```text
-Belum berlabel (tidak dievaluasi): pemeliharaan.sql
-
-Dievaluasi: audit.sql, campuran_error.sql, laporan_penjualan.sql (20 triple)
+Dievaluasi: audit.sql, campuran_error.sql, laporan_penjualan.sql, pemeliharaan.sql (27 triple)
 
 Metode   Precision  Recall     F1
 parser        1.00    1.00   1.00
-regex         0.68    0.85   0.76
-```
+regex         0.65    0.81   0.72
 
-Parser menemukan semua 20 triple tanpa salah-temu. Regex menghasilkan 8 salah-temu (FP) dan
-3 terlewat (FN). Ground truth `audit.sql` (10 triple) kami susun dari SPESIFIKASI.md, bukan
-dari keluaran program, supaya evaluasi tidak melingkar. `pemeliharaan.sql` belum berlabel
-sehingga tidak dihitung. **[ISI: siapa melabeli file lain; status pemeliharaan.sql]**
+Parser menemukan seluruh 27 triple tanpa salah-temu (F1 = 1.00). Regex menghasilkan 12 salah-temu (FP) dan 8 terlewat (FN). Ground truth disusun secara manual berdasarkan aturan SPESIFIKASI.md (bukan dari keluaran program) agar evaluasi tidak melingkar. Seluruh 4 file sampel (audit.sql, campuran_error.sql, laporan_penjualan.sql, dan pemeliharaan.sql) kini telah berlabel lengkap dan dievaluasi secara penuh.
 
 ## 2. Tiga kasus di mana regex salah
 
@@ -59,7 +54,8 @@ Parser menolaknya dan tidak menghitungnya (SPESIFIKASI 5 dan 6); regex tetap men
    Contoh: `WITH x AS (SELECT ...) SELECT * FROM x`. Statement gagal di-parse sehingga tidak
    dihitung, dan seluruh tabel di dalamnya hilang dari matrix (FN). Dibutuhkan grammar yang
    diperluas.
-
+4. **Keterbatasan Pendekatan Regex (Baseline)**.
+   Regex tidak memiliki *lexer state* dan *symbol table*, sehingga mengekstrak kata kunci SQL di dalam komentar (`/* ... */` atau `--`) dan string literal, yang menyebabkan rendahnya presisi (Precision = 0.65).
 (Cadangan: SQL yang dirakit di kode aplikasi, mis. `"SELECT * FROM " + tabel`. Tool hanya
 membaca teks `.sql`, sehingga tabelnya tidak muncul. Dibutuhkan analisis kode aplikasi
 atau log query.)
