@@ -12,8 +12,8 @@ alternatif yang ditolak dan alasannya. Contoh topik (boleh memilih yang lain):
 
 | No | Keputusan | Alternatif yang ditolak | Alasan |
 | --- | --- | --- | --- |
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | `*` dibedakan lewat posisi dalam grammar, bukan lewat token: `_select_list` memeriksa `*` di awal daftar kolom (jadi `Star`), `_function_call` menangani `COUNT(*)`, dan `_multiplicative` membaca `*` sebagai perkalian | Membuat lexer menghasilkan dua jenis token berbeda untuk `*` | Lexer tidak tahu konteks; hanya parser yang tahu `*` berada di posisi daftar kolom atau di tengah ekspresi |
+| 2 | Presedensi `AND`/`OR` dinyatakan lewat rantai fungsi `_or()` → `_and()` → `_not()` | Tabel presedensi dengan precedence climbing (Pratt parser) | Seluruh parser sudah memakai gaya satu-fungsi-per-tingkat; mengganti satu bagian membuat kode tidak seragam |
+| 3 | Error recovery berhenti **setelah** `;` (`_synchronize` return setelah mengonsumsi `SEMICOLON`) | Berhenti di keyword awal statement (`SELECT`, `INSERT`, dst.) | Keyword itu bisa muncul di dalam subquery; spesifikasi bagian 6 menyebut `;` secara eksplisit; `;` milik statement yang rusak, jadi ikut dibuang |
+| 4 | (Ziddan) urutan pencarian scope dan akibatnya pada shadowing / correlated subquery | (isi Ziddan) | (isi Ziddan) |
+| 5 | (Ziddan) kolom tanpa qualifier hanya di-resolve ke scope terdalam (T2), dan kelemahannya | (isi Ziddan) | (isi Ziddan) |
