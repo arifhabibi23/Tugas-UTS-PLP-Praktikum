@@ -85,3 +85,15 @@ def test_l2_operator_lain_tidak_berubah():
     assert values("a < b") == ["a", "<", "b"]
     assert values("a <= b") == ["a", "<=", "b"]
     assert values("a > b") == ["a", ">", "b"]
+
+
+def test_l3_kutip_ganda_jadi_satu_string():
+    toks = [(t.type, t.value) for t in tokenize("'it''s'") if t.type != T.EOF]
+    assert toks == [(T.STRING, "it's")]
+
+
+def test_l3_string_biasa_tidak_berubah():
+    # penjaga: harus lulus sebelum dan sesudah perbaikan
+    assert values("'abc'") == ["abc"]
+    assert values("''") == [""]
+    assert types("'abc' 'def'") == [T.STRING, T.STRING, T.EOF]
