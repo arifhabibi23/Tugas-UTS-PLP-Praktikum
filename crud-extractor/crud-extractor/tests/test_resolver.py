@@ -76,3 +76,22 @@ def test_r2_delete_sendiri_tetap_teresolusi():
     script, diagnostics = resolve("DELETE FROM pelanggan WHERE pelanggan.id = 1")
     assert {c.resolved for c in columns(script)} == {"pelanggan"}
     assert diagnostics == []
+
+def test_t2_kolom_tanpa_qualifier_scope_terdalam():
+    script, diagnostics = resolve(
+        "SELECT p.id FROM pelanggan p "
+        "WHERE p.id IN (SELECT pelanggan_id FROM pesanan o)"
+    )
+    inner = [c for c in columns(script) if c.name == "pelanggan_id"][0]
+    assert inner.resolved == "pesanan"
+    assert diagnostics == []
+
+
+def test_t2_kolom_tanpa_qualifier_ambigu_beri_warning():
+    script, diagnostics = resolve(
+        "SELECT nama FROM pelanggan p JOIN pesanan o ON o.pelanggan_id = p.id"
+    )
+    nama = [c for c in columns(script) if c.name == "nama"][0]
+    assert nama.resolved is None
+    assert [d.level for d in diagnostics] == ["warning"]
+    assert "ambigu" in diagnostics[0].message
